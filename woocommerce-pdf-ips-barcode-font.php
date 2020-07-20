@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce PDF Invoices & Packing Slips Barcode 39/128 Font
  * Plugin URI: http://www.wpovernight.com
  * Description: Adds the barcode font Libre Barcode 39/128 to WooCommerce PDF Invoices & Packing Slips
- * Version: 1.0
+ * Version: 1.1
  * Author: Ewout Fernhout
  * Author URI: http://www.wpovernight.com
  * License: GPLv2 or later
@@ -94,7 +94,7 @@ function barcode_font_128_encode( $value, $order, $placeholder_clean = null ) {
 			break;
 	}
 
-	if ( emty($str) && $meta = $order->get_meta($remaining_string) ) {
+	if ( empty($str) && $meta = $order->get_meta($remaining_string) ) {
 		$str = $meta;
 	}
 	
