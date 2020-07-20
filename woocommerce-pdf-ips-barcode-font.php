@@ -90,10 +90,7 @@ function barcode_font_128_encode( $value, $order, $placeholder_clean )
 			break;
 	}
 	if( $str ) {
-		$value = Code128Encoder::encode($str);
+		$value = sprintf( '<div class="wpo-barcode-128" style="font-family:\'Barcode128\'; font-size:32pt; line-height:32pt;">%s</div>', Code128Encoder::encode($str) );
 	}
 	return $value;
-
-	/** How to use inside a custom block */
-	// <div style="font-family: 'Barcode128'; font-size: 32pt; line-height: 32pt;">{{wpo_barcode_128|order_number}}</div>
 }
