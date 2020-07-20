@@ -73,15 +73,27 @@ add_filter( 'wpo_wcpdf_templates_replace_wpo_barcode_128', 'barcode_font_128_enc
 function barcode_font_128_encode( $value, $order, $placeholder_clean )
 {
 	if( empty($order) ) return $value;
+	if( !function_exists('wcpdf_get_document') ) return $value;
 
 	$remaining_string = str_replace('wpo_barcode_128|', '', $placeholder_clean);
 	switch ( $remaining_string ) {
-		case 'order_number':
+		case 'order_number': // {{wpo_barcode_128|order_number}}
 			$str = strval($order->get_id());
+			break;
+		case 'invoice_number': // {{wpo_barcode_128|invoice_number}}
+			$document = wcpdf_get_document('invoice', $order);
+			$str = strval($document->get_number());
+			break;
+		case 'packing-slip_number': // {{wpo_barcode_128|packing-slip_number}}
+			$document = wcpdf_get_document('packing-slip', $order);
+			$str = strval($document->get_number());
 			break;
 	}
 	if( $str ) {
 		$value = Code128Encoder::encode($str);
 	}
 	return $value;
+
+	/** How to use inside a custom block */
+	// <div style="font-family: 'Barcode128'; font-size: 32pt; line-height: 32pt;">{{wpo_barcode_128|order_number}}</div>
 }
