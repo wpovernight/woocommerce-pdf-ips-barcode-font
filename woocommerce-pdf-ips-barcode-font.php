@@ -70,25 +70,34 @@ if (!defined('DOMPDF_ENABLE_FONTSUBSETTING')) {
 
 
 add_filter( 'wpo_wcpdf_templates_replace_wpo_barcode_128', 'barcode_font_128_encode', 10, 3 );
-function barcode_font_128_encode( $value, $order, $placeholder_clean )
-{
-	if( empty($order) ) return $value;
-	if( !function_exists('wcpdf_get_document') ) return $value;
+function barcode_font_128_encode( $value, $order, $placeholder_clean = null ) {
+	if( empty($order) || empty($placeholder_clean) || !function_exists('wcpdf_get_document') ) {
+		return $value;
+	}
 
 	$remaining_string = str_replace('wpo_barcode_128|', '', $placeholder_clean);
 	switch ( $remaining_string ) {
 		case 'order_number': // {{wpo_barcode_128|order_number}}
-			$str = strval($order->get_id());
+			$str = is_callable(array($order,'get_order_number')) ? strval($order->get_order_number()) : strval($order->get_id());
 			break;
 		case 'invoice_number': // {{wpo_barcode_128|invoice_number}}
 			$document = wcpdf_get_document('invoice', $order);
-			$str = strval($document->get_number());
+			if ($document && $document->exists()) {
+				$str = strval($document->get_number());
+			}
 			break;
 		case 'packing-slip_number': // {{wpo_barcode_128|packing-slip_number}}
 			$document = wcpdf_get_document('packing-slip', $order);
-			$str = strval($document->get_number());
+			if ($document && $document->exists()) {
+				$str = strval($document->get_number());
+			}
 			break;
 	}
+
+	if ( emty($str) && $meta = $order->get_meta($remaining_string) ) {
+		$str = $meta;
+	}
+	
 	if( $str ) {
 		$value = Code128Encoder::encode($str);
 	}
