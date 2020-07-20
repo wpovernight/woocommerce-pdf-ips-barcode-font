@@ -10,6 +10,12 @@
  * License URI: http://www.opensource.org/licenses/gpl-license.php
  */
 
+
+require dirname(__FILE__).'/vendor/autoload.php';
+
+use Hbgl\Barcode\Code128Encoder;
+
+
 add_action( 'wpo_wcpdf_custom_styles', 'wpo_wcpdf_barcode_font', 10, 2 );
 function wpo_wcpdf_barcode_font ( $document_type, $document = null ) {
 	if ( apply_filters('wpo_wcpdf_use_path', true) ) {
@@ -60,4 +66,22 @@ function wpo_wcpdf_barcode_font ( $document_type, $document = null ) {
 
 if (!defined('DOMPDF_ENABLE_FONTSUBSETTING')) {
 	define('DOMPDF_ENABLE_FONTSUBSETTING', true);
+}
+
+
+add_filter( 'wpo_wcpdf_templates_replace_wpo_barcode_128', 'barcode_font_128_encode', 10, 3 );
+function barcode_font_128_encode( $value, $order, $placeholder_clean )
+{
+	if( empty($order) ) return $value;
+
+	$remaining_string = str_replace('wpo_barcode_128|', '', $placeholder_clean);
+	switch ( $remaining_string ) {
+		case 'order_number':
+			$str = strval($order->get_id());
+			break;
+	}
+	if( $str ) {
+		$value = Code128Encoder::encode($str);
+	}
+	return $value;
 }
